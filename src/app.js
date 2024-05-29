@@ -1,4 +1,4 @@
-import express from "express";
+import express, { urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -10,5 +10,9 @@ app.use(cors({
 }))
 
 app.use(express.json({limit: "20kb"}))
+app.use(express.urlencoded())
+app.use(express.static("public"))
+app.use(cookieParser)
+
 
 export { app }
