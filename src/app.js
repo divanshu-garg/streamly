@@ -9,10 +9,14 @@ app.use(cors({
     credentials: true
 }))
 
+// set maximum size json data we can accept to 20kb
 app.use(express.json({limit: "20kb"}))
+
+// we receive data in url encoded format which express cant understand. express.urlencoded middleware helps eliminate that
 app.use(express.urlencoded())
+// the below middleware allows express to serve files directly from the public dir. we temprarily stored the user data in this location before passing it to cloudinary
 app.use(express.static("public"))
-app.use(cookieParser)
 // cookie parser is used to access and set the cookies of the user and so that we can perform crud operations on those cookies
+app.use(cookieParser)
 
 export { app }
