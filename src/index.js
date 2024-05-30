@@ -1,10 +1,12 @@
 // require(`dotenv`).config({path: './env'})
 import 'dotenv/config'
+// importing this package ensures env variables are available to all files as soon as we run our code. as index.js is the entry point
 
 import { DB_NAME } from "./constants.js";
 
 import connectDB from "./db/index.js";
 
+// this connectDB fn returns a promise
 connectDB()
 .then(() => {
 

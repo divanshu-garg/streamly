@@ -13,6 +13,6 @@ app.use(express.json({limit: "20kb"}))
 app.use(express.urlencoded())
 app.use(express.static("public"))
 app.use(cookieParser)
-
+// cookie parser is used to access and set the cookies of the user and so that we can perform crud operations on those cookies
 
 export { app }
