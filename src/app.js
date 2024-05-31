@@ -1,22 +1,27 @@
-import express, { urlencoded } from "express";
+import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import userRouter from "./routes/user.routes.js";
 
 const app = express()
 
+// try catch
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
 }))
 
-// set maximum size json data we can accept to 20kb
-app.use(express.json({limit: "20kb"}))
 
-// we receive data in url encoded format which express cant understand. express.urlencoded middleware helps eliminate that
-app.use(express.urlencoded())
-// the below middleware allows express to serve files directly from the public dir. we temprarily stored the user data in this location before passing it to cloudinary
+app.use(express.json({limit: "20kb"}))
+app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
-// cookie parser is used to access and set the cookies of the user and so that we can perform crud operations on those cookies
-app.use(cookieParser)
+app.use(cookieParser())
+
+
+
+// routes declaration
+app.use("/api/v1/users", userRouter)
+// http://localhost:8000/api/v1/users/register
+
 
 export { app }
