@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema(
 // function keyword user because we need the context to perform actions on pw. we dont get it in arrow function
 userSchema.pre("save", async function (next) {
   if(!this.isModified("password")) return;
-  this.password = bcrypt.hash(this.password, 10)
+  this.password = await bcrypt.hash(this.password, 10)
   next()
 })
 
