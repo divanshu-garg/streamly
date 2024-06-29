@@ -10,6 +10,7 @@ router.route("/register").post(
             name: "avatar",
             maxCount: 1 
         },
+        // console.log("log1"),
         {
             name: "coverImage",
             maxCount: 1
@@ -18,6 +19,5 @@ router.route("/register").post(
     ,registerUser
 )
 
-// console.log("log1");
 
 export default router
