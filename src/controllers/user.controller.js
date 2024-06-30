@@ -53,10 +53,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "password should have at least 8 characters");
   }
 
-  if (password.length < 8) {
-    throw new ApiError(400, "password should have at least 8 characters");
-  }
-
   if (!(password.includes("@") && password.includes("#"))) {
     throw new ApiError(400, "password should include '@' and '#'");
   }
@@ -284,4 +280,154 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  const verifyPassword = user.isPasswordCorrect(oldPassword);
+
+  if (!verifyPassword) {
+    throw new ApiError(404, "your password is incorrect");
+  }
+
+  if (newPassword === "") {
+    throw new ApiError(400, "new password field is empty");
+  }
+
+  if (newPassword.length < 8) {
+    throw new ApiError(400, "new password should have at least 8 characters");
+  }
+
+  if (!(newPassword.includes("@") && newPassword.includes("#"))) {
+    throw new ApiError(400, "new password should include '@' and '#'");
+  }
+
+  if (/\d/.test(newPassword) === false) {
+    throw new ApiError(400, "new password should include a number as well");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "password changed successfully"));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user?._id);
+
+  if (!user) {
+    throw new ApiError(400, "no user found, please login first");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { user }, "fetched user details successfully"));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, email } = req.body;
+
+  if (!(fullName && email)) {
+    throw new ApiError(
+      400,
+      "please enter both full name and password to update"
+    );
+  }
+
+  const user = await User.findByIdAndUpdate(
+    res.user?._id,
+    {
+      $set: { fullName: fullName,
+      email,
+      }
+    },
+    { new: true }
+  ).select("-password");
+
+  if (!user) {
+    throw new ApiError(400, "something went wrong");
+  }
+
+  user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, user, "full name and email updated successfully")
+    );
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    // get new avatar and store to local using multer
+    // upload it to cloudinary
+    // update in user object and save
+    
+    const avatarLocalPath = req.file?.path;
+
+    if(!avatarLocalPath){
+        throw new ApiError(400, "please upload a new avatar")
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if(!avatar.url){
+        throw new ApiError(500, "something went wrong while saving new avatar")
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, 
+        { $set:{
+            avatar: avatar
+        }}, {
+            new: true
+        }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user, "avatar changed successfully"))
+})
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+    // get new avatar and store to local using multer
+    // upload it to cloudinary
+    // update in user object and save
+    
+    const coverImageLocalPath = req.file?.path;
+
+    if(!coverImageLocalPath){
+        throw new ApiError(400, "please upload a new cover image")
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if(!coverImage.url){
+        throw new ApiError(500, "something went wrong while saving new cover image")
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, 
+        { $set:{
+            coverImage: coverImage
+        }}, {
+            new: true
+        }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user, "cover image changed successfully"))
+})
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage
+};
