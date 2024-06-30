@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, logoutUser, registerUser } from "../controllers/user.controller.js";
+import { loginUser, logoutUser, refreshAccessToken, registerUser } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -27,5 +27,6 @@ router.route("/logout").post(
     logoutUser)
 // logout: middlewares extracts user from token and adds it to req.body, controller actually deletes token from user object
 
+router.route("/refresh-tokens").post(refreshAccessToken)
 
 export default router
