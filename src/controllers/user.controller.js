@@ -318,7 +318,9 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user?._id);
+  const user = await User.findById(req.user?._id).select(
+    "-password -refreshToken"
+  );
 
   if (!user) {
     throw new ApiError(400, "no user found, please login first");
@@ -330,9 +332,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+  const { fullname, email } = req.body;
 
-  if (!(fullName && email)) {
+  if (!(fullname && email)) {
     throw new ApiError(
       400,
       "please enter both full name and password to update"
@@ -340,12 +342,12 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findByIdAndUpdate(
-    res.user?._id,
+    req.user?._id,
     {
-      $set: { fullName: fullName, email },
+      $set: { fullname: fullname, email },
     },
     { new: true }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
   if (!user) {
     throw new ApiError(400, "something went wrong");
@@ -381,13 +383,13 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        avatar: avatar,
+        avatar: avatar.url,
       },
     },
     {
       new: true,
     }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -418,7 +420,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        coverImage: coverImage,
+        coverImage: coverImage.url,
       },
     },
     {
@@ -564,5 +566,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
-  getWatchHistory
+  getWatchHistory,
 };
