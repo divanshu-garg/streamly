@@ -6,7 +6,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import { lookup } from "dns";
 
 const generateAcessRefreshToken = async (userId) => {
   try {
@@ -352,8 +351,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(400, "something went wrong");
   }
-
-  user.save({ validateBeforeSave: false });
 
   return res
     .status(200)

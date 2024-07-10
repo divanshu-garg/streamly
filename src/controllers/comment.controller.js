@@ -103,7 +103,9 @@ const addComment = asyncHandler(async (req, res) => {
     owner: new mongoose.Types.ObjectId(req.user._id),
   });
 
-  if (!comment) {
+  const commentCreated = await Comment.findById(comment._id);
+
+  if (!commentCreated) {
     throw new ApiError(
       505,
       "something went wrong, try commenting again",
@@ -113,7 +115,7 @@ const addComment = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, comment, "your comment was sent"));
+    .json(new ApiResponse(200, commentCreated, "your comment was sent"));
 });
 
 const updateComment = asyncHandler(async (req, res) => {
@@ -156,13 +158,10 @@ const updateComment = asyncHandler(async (req, res) => {
   if (!updatedComment) {
     throw new ApiError(
       500,
-      "something went wrong, please try again",
+      "something went wrong while updating comment, please try again",
       error?.message
     );
   }
-
-  updatedComment.save({ validateBeforeSave: false });
-
 
   return res
     .status(200)

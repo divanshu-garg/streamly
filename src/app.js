@@ -2,6 +2,8 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import userRouter from "./routes/user.routes.js";
+import healthcheckRouter from "./routes/healthcheck.routes.js";
+import commentRouter from "./routes/comment.routes.js";
 
 const app = express()
 
@@ -23,5 +25,7 @@ app.use(cookieParser())
 app.use("/api/v1/users", userRouter)
 // http://localhost:8000/api/v1/users/register
 
+app.use("/api/v1/hc", healthcheckRouter)
+app.use("/api/v1/comments", commentRouter)
 
 export { app }
