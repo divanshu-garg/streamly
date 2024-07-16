@@ -8,6 +8,7 @@ import commentRouter from "./routes/comment.routes.js";
 import tweetRouter from "./routes/tweet.router.js";
 import subscriptionRouter from "./routes/subscription.router.js";
 import likeRouter from "./routes/like.routes.js";
+import playlistRouter from "./routes/playlist.routes.js";
 
 const app = express()
 
@@ -34,5 +35,6 @@ app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/tweets", tweetRouter)
 app.use("/api/v1/subscriptions", subscriptionRouter)
 app.use("/api/v1/likes", likeRouter)
+app.use("/api/v1/playlists", playlistRouter)
 
 export { app }
