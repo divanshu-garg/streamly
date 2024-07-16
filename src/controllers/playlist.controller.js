@@ -160,7 +160,7 @@ const addVideoToPlaylist = asyncHandler(async(req, res) => {
     ))
 })
 
-const deleteVideoFromPlaylist = asyncHandler(async(req, res) => {
+const removeVideoFromPlaylist = asyncHandler(async(req, res) => {
     // check user logged in & take videoId, plaaylistId in params
     // handle case if video or playlist doesnt exist.
     // authority check
@@ -187,28 +187,103 @@ const deleteVideoFromPlaylist = asyncHandler(async(req, res) => {
         throw new ApiError(404, "video does not exist in playlist", error?.message)
     }
 
-    const deletedVideoFromPlayist = await Playlist.findByIdAndUpdate(
+    const removedVideoFromPlayist = await Playlist.findByIdAndUpdate(
         playlistId,
         {$pull: { videos: mongoose.Types.ObjectId(videoId) }},
         {new: true}
     )
 
-    if(!deletedVideoFromPlayist){
+    if(!removedVideoFromPlayist){
         throw new ApiError(500, "something went wrong while deleting video from playlist", error?.message)
     }
 
     return res
     .status(200)
     .json(
-        new ApiResponse(200, deletedVideoFromPlayist, "video deleted successfully")
+        new ApiResponse(200, removedVideoFromPlayist, "video deleted successfully")
     )
 })
 
+const deletePlaylist = asyncHandler(async(req,res) => {
+    // see if playlist exists
+    // authority check
+    // delete and success message
+
+    const { playlistId } = req.params
+
+    const playlist = await Playlist.findById(playlistId)
+
+    if(!playlist){
+        throw new ApiError(404, "playlist does not exist", error?.message)
+    }
+
+    if(playlist.owner.toString() !== req.user._id.toString()){
+        throw new ApiError(404, "you can not delete this playlist")
+    }
+
+    const deletedPlaylist = await Playlist.findByIdAndDelete(playlistId)
+
+    if(!deletedPlaylist){
+        throw new ApiError(500, "something went wrong while deleting playlist")
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, deletedPlaylist, "playlist deleted successfully"))
+})
+
+const updatePlaylist = asyncHandler(async(req, res) => {
+    // see if playlist doesnt exist
+    // authority check
+    // error handling, update and success response
+
+    const { playlistId } = req.params
+    const { name, description } = req.body;
+
+    const playlist = await Playlist.findById(playlistId)
+
+    if(!playlist){
+        throw new ApiError(404, "playlist does not exist", error?.message)
+    }
+
+    if(playlist.owner.toString() !== req.user._id.toString()){
+        throw new ApiError(404, "you can not delete this playlist")
+    }
+
+    if(!name){
+        throw new ApiError(404, "name field can not be empty", error?.message)
+    }
+
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {
+            name: name,
+            description: description || ""
+        },
+        {new: true}
+    )
+
+    if(!updatedPlaylist){
+        throw new ApiError(404, "something went wrong while updating playlist details", error?.message)
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200,
+        updatedPlaylist,
+        "playlist has been updated successfully"
+    ))
+
+})
 
 export { 
     createPlaylist,
     getUserPlaylists,
     getPlaylistById,
     addVideoToPlaylist,
-    deleteVideoFromPlaylist,
+    removeVideoFromPlaylist,
+    deletePlaylist,
+    updatePlaylist
+
  };
