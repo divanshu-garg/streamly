@@ -4,6 +4,7 @@ import { Video } from "../models/video.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   // take user id and find channel.
@@ -106,4 +107,69 @@ const getAllVideos = asyncHandler(async (req, res) => {
     );
 });
 
-export { getAllVideos };
+const publishAVideo = asyncHandler(async(req, res) => {
+  // add the verifyJWT middleware
+  // similar to create user
+  // take video file and thumbnail in forms. error check
+  // take title and description in req.body
+  //  save files on local via multer. error check
+  // upload files on cloudinary
+  // create new video object
+  // send sucess response
+
+  const { title, description = "" } = req.body
+
+  if(!title?.trim()){
+    throw new ApiError(404, "please enter a video title")
+  }
+
+  const videoLocalPath = req.files?.video[0]?.path
+  const thumbnailLocalPath = req.files?.thumbnail[0]?.path
+
+  if(!videoLocalPath){
+      throw new ApiError(404, "please upload a video first")
+  }
+ 
+  if(!thumbnailLocalPath){
+    throw new ApiError(404, "please upload a video first")
+}
+
+  const video = await uploadOnCloudinary(videoLocalPath)
+  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+
+  if(!video){
+    throw new ApiError(500, "something went wrong while publishing the video")
+  }
+  
+  if(!thumbnail){
+    throw new ApiError(500, "something went wrong while uploading the thumbnail")
+  }
+
+  const publishedVideo = await Video.create({
+      videoFile: video.url,
+      thumbnail: thumbnail.url,
+      title: title.trim(),
+      description,
+      isPublished: true,
+      owner: mongoose.Types.ObjectId(req.user._id),
+      duration: video.duration
+  })
+
+  if(!publishedVideo){
+    throw new ApiError(500, "something went wrong while publishing video, during creation of video object")
+  }
+
+  return res
+  .status(200)
+  .json( new ApiResponse(
+    200,
+    publishedVideo,
+    "video published successfully"
+  ))
+
+})
+
+export { 
+  getAllVideos,
+  publishAVideo
+ };
