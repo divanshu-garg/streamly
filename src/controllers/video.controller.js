@@ -169,7 +169,120 @@ const publishAVideo = asyncHandler(async(req, res) => {
 
 })
 
+const getVideobyId = asyncHandler(async(req,res) => {
+
+  const { videoId } = req.params
+
+  if(!videoId){
+    throw new ApiError(404, "please enter a video id")
+  }
+
+  const video = await Video.aggregate([
+    {
+      $match: {
+        "_id": mongoose.Types.ObjectId(videoId)
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner"
+      }
+    },
+    {
+      $unwind: "$owner"
+    },
+    {
+      $project: {
+        videoFile: 1,
+        thumbnail: 1,
+        title: 1,
+        description: 1,
+        duration: 1,
+        views: 1,
+        createdAt: 1,
+        "owner.avatar": 1,
+        "owner.username": 1,
+        "owner.fullname": 1
+      }
+    }
+  ])
+
+  if(!video.length){
+    throw new ApiError(404, "video does not exist")
+  }
+
+  return res
+  .status(200)
+  .json( new ApiResponse(200,
+    video[0],
+    "video fetched successfully")
+  )
+})
+
+const updateVideo = asyncHandler(async(req,res) => {
+  // use verifyJWT middleware
+  
+  const { videoId } = req.params
+  const { title, description = "" } = req.body
+
+  const video = await Video.findOne({
+    _id: videoId,
+    owner: req.user._id
+  })
+  if(!video){
+    throw new ApiError(404, "video does not exist or unauthorized request")
+  }
+
+  if(!title.trim()){
+    throw new ApiError(404, "please add a new title to be updated")
+  }
+
+  // making thumbnail an optional thing in this logic
+  const thumbnailLocalPath = req.file?.path
+  let updatedThumbnail = ""
+  if(!thumbnailLocalPath){
+    updatedThumbnail = video.thumbnail
+  }else{
+   updatedThumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+   if(updatedThumbnail === ""){
+    throw new ApiError(500, "something went wrong while updating thumbnail")
+   }
+  }
+
+  const updatedVideo = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $set: {
+        title,
+        description,
+        thumbnail: updatedThumbnail?.url
+      }
+    },
+    {new: true}
+  )
+
+  if(!updatedVideo){
+    throw new ApiError(500, "something went wrong while updating video details")
+  }
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, updatedVideo, "video updated successfully")
+  )
+
+})
+
+
+
 export { 
   getAllVideos,
-  publishAVideo
+  publishAVideo,
+  getVideobyId,
+  updateVideo,
+  deleteVideo,
+
  };
