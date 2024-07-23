@@ -57,7 +57,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
   ]);
 
   if (!video[0]) {
-    throw new ApiError(500, "video not found", error?.message);
+    throw new ApiError(500, "video not found");
   }
 
   return res
@@ -86,14 +86,13 @@ const addComment = asyncHandler(async (req, res) => {
   const video = await Video.findById(videoId);
 
   if (!video?.trim()) {
-    throw new ApiError(404, "video does not exist", error?.message);
+    throw new ApiError(404, "video does not exist");
   }
 
   if (!content) {
     throw new ApiError(
       404,
-      "can not make an empty comment, please write something",
-      error?.message
+      "can not make an empty comment, please write something"
     );
   }
 
@@ -108,8 +107,7 @@ const addComment = asyncHandler(async (req, res) => {
   if (!commentCreated) {
     throw new ApiError(
       505,
-      "something went wrong, try commenting again",
-      error?.message
+      "something went wrong, try commenting again"
     );
   }
 
@@ -132,19 +130,18 @@ const updateComment = asyncHandler(async (req, res) => {
   const comment = await Comment.findById(commentId);
 
   if (!comment) {
-    throw new ApiError(404, "comment does not exist", error?.message);
+    throw new ApiError(404, "comment does not exist");
   }
 
   if (comment.owner.toString() !== userId.toString()) {
     throw new ApiError(
       404,
-      "unauthorized request, you can't update this comment",
-      error?.message
+      "unauthorized request, you can't update this comment"
     );
   }
 
   if (!content) {
-    throw new ApiError(404, "updated comment can't be empty", error?.message);
+    throw new ApiError(404, "updated comment can't be empty");
   }
 
   const updatedComment = await Comment.findByIdAndUpdate(
@@ -158,8 +155,7 @@ const updateComment = asyncHandler(async (req, res) => {
   if (!updatedComment) {
     throw new ApiError(
       500,
-      "something went wrong while updating comment, please try again",
-      error?.message
+      "something went wrong while updating comment, please try again"
     );
   }
 
@@ -179,15 +175,14 @@ const deleteComment = asyncHandler(async (req, res) => {
   const comment = await Comment.findById(commentId);
 
   if (!comment) {
-    throw new ApiError(404, "comment not found", error?.message);
+    throw new ApiError(404, "comment not found");
   }
 
   // if i dont use .toString then I will compare two different object instances which can never be same
   if (comment.owner.toString() !== userId.toString()) {
     throw new ApiError(
       404,
-      "unauthorized request, you can't delete this comment",
-      error?.message
+      "unauthorized request, you can't delete this comment"
     );
   }
 
@@ -196,8 +191,7 @@ const deleteComment = asyncHandler(async (req, res) => {
   if (!deletedComment) {
     throw new ApiError(
       500,
-      "something went wrong, please try again",
-      error?.message
+      "something went wrong, please try again"
     );
   }
 

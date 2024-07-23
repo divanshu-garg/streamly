@@ -14,11 +14,11 @@ const createTweet = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new ApiError(404, "you are not logged in", error?.message);
+    throw new ApiError(404, "you are not logged in");
   }
 
   if (!content) {
-    throw new ApiError(404, "please write something first", error?.message);
+    throw new ApiError(404, "please write something first");
   }
 
   const tweet = await Tweet.create({
@@ -31,8 +31,7 @@ const createTweet = asyncHandler(async (req, res) => {
   if (!tweetCreated) {
     throw new ApiError(
       500,
-      "something went wrong, please try again",
-      error?.message
+      "something went wrong, please try again"
     );
   }
 
@@ -59,7 +58,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   if (!username?.trim()) {
-    throw new ApiError(404, "please enter a username", error?.message);
+    throw new ApiError(404, "please enter a username");
   }
 
   const user = await User.aggregate([
@@ -90,7 +89,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
   //   user not found: empty array
   if (!user.length) {
-    throw new ApiError(404, "user not found", error?.message);
+    throw new ApiError(404, "user not found");
   }
 
   return res
@@ -115,15 +114,15 @@ const updateTweet = asyncHandler(async (req, res) => {
     const tweet = await Tweet.findById(tweetId)
 
     if(!tweet){
-        throw new ApiError(404, "tweet does not exist ", error?.message)
+        throw new ApiError(404, "tweet does not exist ")
     }
 
     if(tweet.owner.toString() !== req.user._id.toString()){
-        throw new ApiError(401, "authorization error: you can't update this tweet", error?.message)
+        throw new ApiError(401, "authorization error: you can't update this tweet")
     }
 
     if(!content){
-        throw new ApiError(404, "updated tweet can not be empty", error?.message)
+        throw new ApiError(404, "updated tweet can not be empty")
     }
 
     const updatedTweet = await Tweet.findByIdAndUpdate(tweetId, 
@@ -132,7 +131,7 @@ const updateTweet = asyncHandler(async (req, res) => {
     )
 
     if(!updatedTweet){
-        throw new ApiError(500, "something went wrong while updating tweet, please try again", error?.message)
+        throw new ApiError(500, "something went wrong while updating tweet, please try again")
     }
 
     return res
@@ -151,17 +150,17 @@ const deleteTweet = asyncHandler(async(req, res) => {
     const tweet = await Tweet.findById(tweetId)
 
     if(!tweet){
-        throw new ApiError(404, "tweet not found", error?.message)
+        throw new ApiError(404, "tweet not found")
     }
 
     if(tweet.owner.toString() !== req.user._id.toString()){
-        throw new ApiError(401, "unauthrized request, you can't delete this tweet", error?.message)
+        throw new ApiError(401, "unauthrized request, you can't delete this tweet")
     }
 
     const deletedTweet = await Tweet.findByIdAndDelete(tweetId);
 
     if(!deletedTweet){
-        throw new ApiError(500, "something went wrong while deleting tweet, please try again", error?.message)
+        throw new ApiError(500, "something went wrong while deleting tweet, please try again")
     }
 
     return res

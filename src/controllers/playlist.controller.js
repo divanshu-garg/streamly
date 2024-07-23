@@ -22,8 +22,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
   if (playlist.length) {
     throw new ApiError(
       404,
-      "playlist with this name already exists",
-      error?.message
+      "playlist with this name already exists"
     );
   }
 
@@ -34,7 +33,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
   });
 
   if(!newPlaylist){
-    throw new ApiError(500, "something went wrong while creating the playlist", error?.message)
+    throw new ApiError(500, "something went wrong while creating the playlist")
   }
 
   return res
@@ -82,7 +81,7 @@ const getUserPlaylists = asyncHandler(async(req, res) => {
 
 
     if(!user.length){
-        throw new ApiError(404, "user not found", error?.message)
+        throw new ApiError(404, "user not found")
     }
 
     return res
@@ -101,7 +100,7 @@ const getPlaylistById = asyncHandler(async(req, res) => {
     const playlist = await Playlist.findById(playlistId)
 
     if(!playlist){
-        throw new ApiError(404, "playlist with this id does not exist", error?.message)
+        throw new ApiError(404, "playlist with this id does not exist")
     }
 
     return res
@@ -125,7 +124,7 @@ const addVideoToPlaylist = asyncHandler(async(req, res) => {
     const video = await Video.findById(videoId)
 
     if(!video){
-        throw new ApiError(404, "video not found", error?.message)
+        throw new ApiError(404, "video not found")
     }
 
     const playlist = await Playlist.findOne({
@@ -134,7 +133,7 @@ const addVideoToPlaylist = asyncHandler(async(req, res) => {
     })
 
     if(!playlist){
-        throw new ApiError(404, "invalid playlist, it doesnt exist for your account", error?.message)
+        throw new ApiError(404, "invalid playlist, it doesnt exist for your account")
     }
 
     const updatedPlaylist = await Playlist.findByIdAndUpdate(
@@ -148,7 +147,7 @@ const addVideoToPlaylist = asyncHandler(async(req, res) => {
     )
 
     if(!updatedPlaylist){
-        throw new ApiError(500, "something went wrong while adding video to the playlist", error?.message)
+        throw new ApiError(500, "something went wrong while adding video to the playlist")
     }
 
     return res
@@ -175,7 +174,7 @@ const removeVideoFromPlaylist = asyncHandler(async(req, res) => {
     })
 
     if(!playlist){
-        throw new ApiError(404, "invalid playlist, it doesnt exist in your account", error?.message)
+        throw new ApiError(404, "invalid playlist, it doesnt exist in your account")
     }
 
     const existingVideo = await Playlist.findOne({
@@ -184,7 +183,7 @@ const removeVideoFromPlaylist = asyncHandler(async(req, res) => {
     })
 
     if(!existingVideo){
-        throw new ApiError(404, "video does not exist in playlist", error?.message)
+        throw new ApiError(404, "video does not exist in playlist")
     }
 
     const removedVideoFromPlayist = await Playlist.findByIdAndUpdate(
@@ -194,7 +193,7 @@ const removeVideoFromPlaylist = asyncHandler(async(req, res) => {
     )
 
     if(!removedVideoFromPlayist){
-        throw new ApiError(500, "something went wrong while deleting video from playlist", error?.message)
+        throw new ApiError(500, "something went wrong while deleting video from playlist")
     }
 
     return res
@@ -214,7 +213,7 @@ const deletePlaylist = asyncHandler(async(req,res) => {
     const playlist = await Playlist.findById(playlistId)
 
     if(!playlist){
-        throw new ApiError(404, "playlist does not exist", error?.message)
+        throw new ApiError(404, "playlist does not exist")
     }
 
     if(playlist.owner.toString() !== req.user._id.toString()){
@@ -243,7 +242,7 @@ const updatePlaylist = asyncHandler(async(req, res) => {
     const playlist = await Playlist.findById(playlistId)
 
     if(!playlist){
-        throw new ApiError(404, "playlist does not exist", error?.message)
+        throw new ApiError(404, "playlist does not exist")
     }
 
     if(playlist.owner.toString() !== req.user._id.toString()){
@@ -251,7 +250,7 @@ const updatePlaylist = asyncHandler(async(req, res) => {
     }
 
     if(!name){
-        throw new ApiError(404, "name field can not be empty", error?.message)
+        throw new ApiError(404, "name field can not be empty")
     }
 
     const updatedPlaylist = await Playlist.findByIdAndUpdate(
@@ -264,7 +263,7 @@ const updatePlaylist = asyncHandler(async(req, res) => {
     )
 
     if(!updatedPlaylist){
-        throw new ApiError(404, "something went wrong while updating playlist details", error?.message)
+        throw new ApiError(404, "something went wrong while updating playlist details")
     }
 
     return res

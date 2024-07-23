@@ -18,7 +18,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
   const channelExists = await User.findById(channelId.trim().toLowerCase());
 
   if (!channelExists) {
-    throw new ApiError(404, "channel does not exist", error?.message);
+    throw new ApiError(404, "channel does not exist");
   }
 
   const subscribers = await Subscription.find({
@@ -105,7 +105,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
   const channelExists = await User.findById(channelId.trim().toLowerCase());
 
   if (!channelExists) {
-    throw new ApiError(404, "channel not found", error?.message);
+    throw new ApiError(404, "channel not found");
   }
 
   const channelVideos = await User.aggregate([
@@ -146,8 +146,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
   if (!channelVideos.length) {
     throw new ApiError(
       500,
-      "something went wrong while fetching channel videos",
-      error?.message
+      "something went wrong while fetching channel videos"
     );
   }
 

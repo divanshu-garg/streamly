@@ -23,8 +23,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     if (!unsubscribe) {
       throw new ApiError(
         500,
-        "could not unsubscribe, please try again",
-        error?.message
+        "could not unsubscribe, please try again"
       );
     }
 
@@ -40,8 +39,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     if (!subscribe) {
       throw new ApiError(
         500,
-        "could not subscribe, please try again",
-        error?.message
+        "could not subscribe, please try again"
       );
     }
 
@@ -62,13 +60,13 @@ const getUserChannelSubscribers = asyncHandler(async(req, res) => {
     const channel = await User.findById(channelId)
 
     if(!channel){
-        throw new ApiError(404, "channel not found", error?.message)
+        throw new ApiError(404, "channel not found")
     }
 
     const subscribers = await Subscription.find({ channel: channelId })
 
     if(!subscribers){
-        throw new ApiError(500, "an error occured while fetching subscribers", error?.message)
+        throw new ApiError(500, "an error occured while fetching subscribers")
     }
 
     return res
@@ -88,13 +86,13 @@ const getSubscribedChannels = asyncHandler(async(req, res) => {
     const subscriber = await User.findById(subscriberId)
 
     if(!subscriber){
-        throw new ApiError(404, "user not found", error?.message)
+        throw new ApiError(404, "user not found")
     }
 
     const subscribedChannels = await Subscription.find({ subscriber: subscriberId })
 
     if(!subscribedChannels){
-        throw new ApiError(500, "something went wrong while finding subscribers", error?.message)
+        throw new ApiError(500, "something went wrong while finding subscribers")
     }
 
     return res

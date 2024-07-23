@@ -18,7 +18,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
   const video = await Video.findById(videoId);
 
   if (!video) {
-    throw new ApiError(404, "video not found", error?.message);
+    throw new ApiError(404, "video not found");
   }
 
   const alreadyLiked = await Like.findOne({
@@ -35,8 +35,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     if (!deletedLike) {
       throw new ApiError(
         500,
-        "something went wrong while unliking the video",
-        error?.message
+        "something went wrong while unliking the video"
       );
     }
 
@@ -58,8 +57,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     if (!videoLiked) {
       throw new ApiError(
         500,
-        "something went wrong while liking the video",
-        error?.message
+        "something went wrong while liking the video"
       );
     }
 
@@ -79,7 +77,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   const comment = await Comment.findById(commentId);
 
   if (!comment) {
-    throw new ApiError(404, "comment not found", error?.message);
+    throw new ApiError(404, "comment not found");
   }
 
   const alreadyLiked = await Like.findOne({
@@ -96,8 +94,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     if (!deletedLike) {
       throw new ApiError(
         500,
-        "something went wrong while unliking the comment",
-        error?.message
+        "something went wrong while unliking the comment"
       );
     }
 
@@ -119,8 +116,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     if (!commentLiked) {
       throw new ApiError(
         500,
-        "something went wrong while liking the comment",
-        error?.message
+        "something went wrong while liking the comment"
       );
     }
 
@@ -136,7 +132,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
   const tweet = await Tweet.findById(tweetId);
 
   if (!tweet) {
-    throw new ApiError(404, "tweet not found", error?.message);
+    throw new ApiError(404, "tweet not found");
   }
 
   const alreadyLiked = await Like.findOne({
@@ -153,8 +149,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     if (!deletedLike) {
       throw new ApiError(
         500,
-        "something went wrong while unliking the tweet",
-        error?.message
+        "something went wrong while unliking the tweet"
       );
     }
 
@@ -176,8 +171,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     if (!tweetLiked) {
       throw new ApiError(
         500,
-        "something went wrong while liking the tweet",
-        error?.message
+        "something went wrong while liking the tweet"
       );
     }
 
@@ -252,7 +246,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
   ]);
 
   if(!userLikes.length){
-    throw new ApiError(500, "something went wrong while fetching all liked videos", error?.message)
+    throw new ApiError(500, "something went wrong while fetching all liked videos")
   }
 
   return res
