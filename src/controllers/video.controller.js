@@ -41,7 +41,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
       $match: {
         isPublished: true,
         title: { $regex: query || "", $options: "i" },
-        owner: mongoose.Types.ObjectId(userId),
+        owner: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -79,6 +79,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
   ]);
 
   if (!videos.length) {
+    console.log("userId: ", mongoose.Types.ObjectId.isValid(userId));
     throw new ApiError(
       500,
       "something went wrong while fetching all videos"

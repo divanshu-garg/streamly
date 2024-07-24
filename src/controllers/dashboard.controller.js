@@ -1,9 +1,9 @@
-import mongoose, { mongo } from "mongoose";
-import { Subscription } from "../models/subscription.model";
-import { User } from "../models/user.model";
-import { ApiError } from "../utils/apiError";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiResponse } from "../utils/ApiResponse";
+import mongoose from "mongoose";
+import { Subscription } from "../models/subscription.model.js";
+import { User } from "../models/user.model.js";
+import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const getChannelStats = asyncHandler(async (req, res) => {
   // channel id in params(invalid id check), user should be logged in
