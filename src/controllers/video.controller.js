@@ -334,11 +334,44 @@ try {
 }
 })
 
+const togglePublishStatus = asyncHandler(async(req, res) => {
+  const { videoId } = req.params
+
+  const video = await Video.findOne({
+    "_id": videoId,
+    owner: req.user._id
+  })
+
+  if(!video){
+    throw new ApiError(400, "video does not exist")
+  }
+
+  let toggleStatus = !(video.isPublished);
+
+  const changedPublishToggle = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      isPublished: toggleStatus
+    },
+    {new: true}
+  )
+
+  if(!changedPublishToggle){
+    throw new ApiError(500, "something went wrong while changing publish status")
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(
+    200, changedPublishToggle, "publish status changed successfully"
+  ))
+})
+
 export { 
   getAllVideos,
   publishAVideo,
   getVideobyId,
   updateVideo,
   deleteVideo,
-
+  togglePublishStatus
  };
