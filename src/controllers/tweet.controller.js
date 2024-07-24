@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { Tweet } from "../models/tweet.model";
-import { User } from "../models/user.model";
-import { ApiError } from "../utils/apiError";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiResponse } from "../utils/ApiResponse";
+import { Tweet } from "../models/tweet.model.js";
+import { User } from "../models/user.model.js";
+import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const createTweet = asyncHandler(async (req, res) => {
   // check user logged in

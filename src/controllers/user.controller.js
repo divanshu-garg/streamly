@@ -72,6 +72,7 @@ const registerUser = asyncHandler(async (req, res) => {
     $or: [{ username }, { email }],
   });
 
+  // console.log(req.files);
   const avatarLocalPath = req.files?.avatar[0]?.path;
   let coverImageLocalPath = "";
   if (req.files && req.files.coverImage && req.files.coverImage.length > 0) {

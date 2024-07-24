@@ -5,6 +5,7 @@ import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary } from "../utils/deleteFromCloudinary.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   // take user id and find channel.
@@ -263,10 +264,17 @@ const updateVideo = asyncHandler(async(req,res) => {
     },
     {new: true}
   )
-
+  
+  // if succeed: delete old thumbnail from cloud if a new thumbnail was added, if fail & had a new thumbnail then delete new thumbnail from cloud
   if(!updatedVideo){
+    if(thumbnailLocalPath){
+      await deleteFromCloudinary(updatedThumbnail)
+    }
+    
     throw new ApiError(500, "something went wrong while updating video details")
   }
+
+  await deleteFromCloudinary(video.thumbnail)
 
   return res
   .status(200)
@@ -276,7 +284,55 @@ const updateVideo = asyncHandler(async(req,res) => {
 
 })
 
+const deleteVideo = asyncHandler(async(req, res) => {
+  const { videoId } = req.params
 
+  const videoExists = await Video.findOne({
+    "_id": videoId,
+    owner: req.user._id
+  })
+
+  if(!videoExists){
+    throw new ApiError(404, "video does not exist")
+  }
+
+  let videoDeletedFromCloud = false;
+
+try {
+    // delete video from cloudinary
+    const deletedVideoFromCloud = await deleteFromCloudinary(videoExists.videoFile)
+  
+    if(!deletedVideoFromCloud.success){
+      throw new ApiError(500, "something went wrong while deleting video from cloud")
+    }
+    
+    videoDeletedFromCloud = true;
+  
+    const deletedThumbnailFromCloud = await deleteFromCloudinary(videoExists.thumbnail)
+    
+
+    if(!deletedThumbnailFromCloud.success){
+      console.error("thumbnail was not deleted, url: ", videoExists.thumbnail);
+    }
+    
+    const deletedVideo = await Video.findByIdAndDelete(videoId)
+  
+    if(!deletedVideo){
+      throw new ApiError(500, "task completed partially: video has been deleted from cloud but not from the db")
+    }
+  
+    return res
+    .status(200)
+    .json( new ApiResponse(
+      200, deletedVideo, "video deleted successfully"
+    ) )
+} catch (error) {
+  if (videoDeletedFromCloud) {
+    console.error("CRITICAL: Video deleted from Cloudinary but not from database. VideoId:", videoId, "CloudinaryUrl:", videoExists.videoFile);
+  }
+  return res.status(error.statusCode || 500).json(new ApiError(error.statusCode || 500, error?.message));
+}
+})
 
 export { 
   getAllVideos,
