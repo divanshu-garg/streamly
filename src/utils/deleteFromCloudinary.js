@@ -11,17 +11,28 @@ const deleteFromCloudinary = async (assetUrl) => {
         if(!assetUrl) return null
 
         const publicId = assetUrl.split('/').slice(-1)[0].split('.')[0];
+        const fileExtension = assetUrl.split('.').pop().toLowerCase()
 
-        const result = await cloudinary.uploader.destroy(publicId, { resource_type: "auto" });
+        let resourceType;
+        if (["jpg", "jpeg", "png", "gif"].includes(fileExtension)) {
+          resourceType = "image";
+        } else if (["mp4", "webm", "mov"].includes(fileExtension)) {
+          resourceType = "video";
+        } else {
+          resourceType = "raw";
+        }
+
+        const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
 
         if (result.result === 'ok') {
-          console.log('Video deleted successfully');
+          console.log('file deleted successfully');
           return result;
         } else {
           console.error('Failed to delete video:', result);
           return null;
         }
     } catch (error) {
+      console.log(error)
         return null
     }
 };

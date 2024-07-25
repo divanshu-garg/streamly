@@ -187,7 +187,7 @@ const getVideobyId = asyncHandler(async(req,res) => {
   const video = await Video.aggregate([
     {
       $match: {
-        "_id": mongoose.Types.ObjectId(videoId)
+        "_id": new mongoose.Types.ObjectId(videoId)
       }
     },
     {
@@ -231,63 +231,61 @@ const getVideobyId = asyncHandler(async(req,res) => {
 
 const updateVideo = asyncHandler(async(req,res) => {
   // use verifyJWT middleware
-  
-  const { videoId } = req.params
-  const { title, description = "" } = req.body
+
+  const { videoId } = req.params;
+  const { title, description = "" } = req.body;
 
   const video = await Video.findOne({
     _id: videoId,
-    owner: req.user._id
-  })
-  if(!video){
-    throw new ApiError(404, "video does not exist or unauthorized request")
+    owner: req.user._id,
+  });
+  if (!video) {
+    throw new ApiError(404, "video does not exist or unauthorized request");
   }
 
-  if(!title.trim()){
-    throw new ApiError(404, "please add a new title to be updated")
+  if (!title.trim()) {
+    throw new ApiError(404, "please add a new title to be updated");
   }
 
   // making thumbnail an optional thing in this logic
-  const thumbnailLocalPath = req.file?.path
-  let updatedThumbnail = ""
-  if(!thumbnailLocalPath){
-    updatedThumbnail = video.thumbnail
-  }else{
-   updatedThumbnail = await uploadOnCloudinary(thumbnailLocalPath)
-   if(updatedThumbnail === ""){
-    throw new ApiError(500, "something went wrong while updating thumbnail")
-   }
+  const thumbnailLocalPath = req.file?.path;
+  let updatedThumbnail = "";
+  if (!thumbnailLocalPath) {
+    updatedThumbnail = video.thumbnail;
+  } else {
+    updatedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    if (updatedThumbnail === "") {
+      throw new ApiError(500, "something went wrong while updating thumbnail");
+    }
   }
 
   const updatedVideo = await Video.findByIdAndUpdate(
     videoId,
     {
       $set: {
-        title,
+        title: title.trim(),
         description,
-        thumbnail: updatedThumbnail?.url
-      }
+        thumbnail: updatedThumbnail?.url,
+      },
     },
-    {new: true}
-  )
-  
-  // if succeed: delete old thumbnail from cloud if a new thumbnail was added, if fail & had a new thumbnail then delete new thumbnail from cloud
-  if(!updatedVideo){
-    if(thumbnailLocalPath){
-      await deleteFromCloudinary(updatedThumbnail)
-    }
-    
-    throw new ApiError(500, "something went wrong while updating video details")
-  }
+    { new: true }
+  );
 
-  await deleteFromCloudinary(video.thumbnail)
+  // if succeed: delete old thumbnail from cloud if a new thumbnail was added, if fail & had a new thumbnail then delete new thumbnail from cloud
+  if (!updatedVideo) {
+    if (thumbnailLocalPath) {
+      await deleteFromCloudinary(updatedThumbnail);
+    }
+    throw new ApiError(
+      500,
+      "something went wrong while updating video details"
+    );
+  }
+  await deleteFromCloudinary(video.thumbnail);
 
   return res
-  .status(200)
-  .json(
-    new ApiResponse(200, updatedVideo, "video updated successfully")
-  )
-
+    .status(200)
+    .json(new ApiResponse(200, updatedVideo, "video updated successfully"));
 })
 
 const deleteVideo = asyncHandler(async(req, res) => {
