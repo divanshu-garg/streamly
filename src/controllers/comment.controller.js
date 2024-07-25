@@ -13,7 +13,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
   const video = await Video.aggregate([
     {
       $match: {
-        _id: videoId,
+        _id: new mongoose.Types.ObjectId(videoId),
       },
     },
     {
@@ -56,7 +56,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     },
   ]);
 
-  if (!video[0]) {
+  if (!video.length) {
     throw new ApiError(500, "video not found");
   }
 
@@ -85,7 +85,7 @@ const addComment = asyncHandler(async (req, res) => {
 
   const video = await Video.findById(videoId);
 
-  if (!video?.trim()) {
+  if (!video) {
     throw new ApiError(404, "video does not exist");
   }
 
@@ -159,9 +159,12 @@ const updateComment = asyncHandler(async (req, res) => {
     );
   }
 
+  console.log("content: ", updatedComment);
+
   return res
     .status(200)
-    .json(200, updatedComment, "comment was updated successfully");
+    .json(
+      new ApiResponse(200, updatedComment, "comment was updated successfully"));
 });
 
 const deleteComment = asyncHandler(async (req, res) => {

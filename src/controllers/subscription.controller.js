@@ -13,12 +13,12 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
   const { channelId } = req.params;
 
-  const subscribed = await Subscription.findById({
+  const subscribed = await Subscription.findOne({
     channel: channelId,
-    subscriber: new mongoose.Types.ObjectId(req.user._id),
+    subscriber: req.user._id,
   });
 
-  if (subscribed.length) {
+  if (subscribed) {
     const unsubscribe = await Subscription.findByIdAndDelete(subscribed[0]._id);
     if (!unsubscribe) {
       throw new ApiError(

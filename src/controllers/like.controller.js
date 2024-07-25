@@ -23,13 +23,13 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
   const alreadyLiked = await Like.findOne({
     video: videoId,
-    likedBy: mongoose.Types.ObjectId(req.user._id),
+    likedBy: req.user._id,
   });
 
   if (alreadyLiked) {
     const deletedLike = await Like.deleteOne({
       video: videoId,
-      likedBy: mongoose.Types.ObjectId(req.user._id),
+      likedBy: req.user._id,
     });
 
     if (!deletedLike) {
@@ -51,7 +51,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
   } else {
     const videoLiked = await Like.create({
       video: videoId,
-      likedBy: mongoose.Types.ObjectId(req.user._id),
+      likedBy: new mongoose.Types.ObjectId(req.user._id),
     });
 
     if (!videoLiked) {
@@ -82,7 +82,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 
   const alreadyLiked = await Like.findOne({
     comment: commentId,
-    likedBy: mongoose.Types.ObjectId(req.user._id),
+    likedBy: req.user._id,
   });
 
   if (alreadyLiked) {
@@ -110,7 +110,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   } else {
     const commentLiked = await Like.create({
       comment: commentId,
-      likedBy: mongoose.Types.ObjectId(req.user._id),
+      likedBy: new mongoose.Types.ObjectId(req.user._id),
     });
 
     if (!commentLiked) {
@@ -137,7 +137,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
   const alreadyLiked = await Like.findOne({
     tweet: tweetId,
-    likedBy: mongoose.Types.ObjectId(req.user._id),
+    likedBy: req.user._id,
   });
 
   if (alreadyLiked) {
@@ -165,7 +165,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
   } else {
     const tweetLiked = await Like.create({
       tweet: tweetId,
-      likedBy: mongoose.Types.ObjectId(req.user._id),
+      likedBy: new mongoose.Types.ObjectId(req.user._id),
     });
 
     if (!tweetLiked) {
@@ -191,7 +191,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
   const userLikes = await User.aggregate([
     {
       $match: {
-        _id: mongoose.Types.ObjectId(req.user._id),
+        _id: new mongoose.Types.ObjectId(req.user._id),
       },
     },
     {
@@ -245,7 +245,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     },
   ]);
 
-  if(!userLikes.length){
+  if(!userLikes){
     throw new ApiError(500, "something went wrong while fetching all liked videos")
   }
 
@@ -253,7 +253,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
   .status(200)
   .json(new ApiResponse(
     200,
-    userLikes[0].likedVideos,
+    userLikes,
     "fetched all liked videos successfully"
   ))
 
