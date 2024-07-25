@@ -78,7 +78,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     },
   ]);
 
-  if (!videos.length) {
+  if (!videos) {
     console.log("userId: ", mongoose.Types.ObjectId.isValid(userId));
     throw new ApiError(
       500,
@@ -89,10 +89,10 @@ const getAllVideos = asyncHandler(async (req, res) => {
   const totalVideos = await Video.countDocuments({
     isPublished: true,
     title: { $regex: query || "", $options: "i" },
-    owner: mongoose.Types.ObjectId(userId),
+    owner: new mongoose.Types.ObjectId(userId),
   })
 
-  if(!totalVideos){
+  if(totalVideos === null || totalVideos === undefined){
     throw new ApiError(500, "something went wrong while pagination, please try again")
   }
 
