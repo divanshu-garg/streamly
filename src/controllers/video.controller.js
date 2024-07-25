@@ -289,6 +289,7 @@ const updateVideo = asyncHandler(async(req,res) => {
 })
 
 const deleteVideo = asyncHandler(async(req, res) => {
+  // try adjusting case: found video id but not cloudinary url
   const { videoId } = req.params
 
   const videoExists = await Video.findOne({
@@ -306,7 +307,7 @@ try {
     // delete video from cloudinary
     const deletedVideoFromCloud = await deleteFromCloudinary(videoExists.videoFile)
   
-    if(!deletedVideoFromCloud.success){
+    if(!deletedVideoFromCloud){
       throw new ApiError(500, "something went wrong while deleting video from cloud")
     }
     
@@ -315,7 +316,7 @@ try {
     const deletedThumbnailFromCloud = await deleteFromCloudinary(videoExists.thumbnail)
     
 
-    if(!deletedThumbnailFromCloud.success){
+    if(!deletedThumbnailFromCloud){
       console.error("thumbnail was not deleted, url: ", videoExists.thumbnail);
     }
     

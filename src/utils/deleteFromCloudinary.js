@@ -22,6 +22,14 @@ const deleteFromCloudinary = async (assetUrl) => {
           resourceType = "raw";
         }
 
+        // check if assetUrl exists in cloudinary, if no then send success response with warning in log
+        try {
+          await cloudinary.api.resource(publicId, { resource_type: resourceType });
+        } catch (error) {
+          console.log("given asset didnt exist, sending success response, url: ", assetUrl);
+        return { result: 'ok', success: true, message: 'Asset not found in Cloudinary' };
+        }
+        
         const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
 
         if (result.result === 'ok') {
@@ -32,7 +40,7 @@ const deleteFromCloudinary = async (assetUrl) => {
           return null;
         }
     } catch (error) {
-      console.log(error)
+      console.log("error: ", error)
         return null
     }
 };
