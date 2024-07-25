@@ -92,6 +92,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     owner: new mongoose.Types.ObjectId(userId),
   })
 
+  // edge case: totalVideos can be zero which will make it false in if statement
   if(totalVideos === null || totalVideos === undefined){
     throw new ApiError(500, "something went wrong while pagination, please try again")
   }
@@ -136,25 +137,29 @@ const publishAVideo = asyncHandler(async(req, res) => {
     throw new ApiError(404, "please upload a video first")
 }
 
-  const video = await uploadOnCloudinary(videoLocalPath)
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+  const uploadedVideo = await uploadOnCloudinary(videoLocalPath)
+  const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath)
 
-  if(!video){
+  if(!uploadedVideo){
+    console.log("video: ", uploadedVideo);
+    if(uploadedThumbnail){
+      await deleteFromCloudinary(uploadedThumbnail)
+    }
     throw new ApiError(500, "something went wrong while publishing the video")
   }
   
-  if(!thumbnail){
+  if(!uploadedThumbnail){
     throw new ApiError(500, "something went wrong while uploading the thumbnail")
   }
 
   const publishedVideo = await Video.create({
-      videoFile: video.url,
-      thumbnail: thumbnail.url,
+      videoFile: uploadedVideo.url,
+      thumbnail: uploadedThumbnail.url,
       title: title.trim(),
       description,
       isPublished: true,
-      owner: mongoose.Types.ObjectId(req.user._id),
-      duration: video.duration
+      owner: new mongoose.Types.ObjectId(req.user._id),
+      duration: uploadedVideo.duration
   })
 
   if(!publishedVideo){
